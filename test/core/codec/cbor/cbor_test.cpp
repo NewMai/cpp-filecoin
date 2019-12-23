@@ -73,6 +73,13 @@ TEST(Cbor, Null) {
   EXPECT_FALSE(CborDecodeStream("01"_unhex).isNull());
 }
 
+TEST(Cbor, Bytes) {
+  EXPECT_OUTCOME_TRUE(a, (decode<std::array<uint8_t, 1>>("4101"_unhex)));
+  EXPECT_EQ(a[0], 1);
+  EXPECT_OUTCOME_ERROR(CborDecodeError::WRONG_LENGTH, (decode<std::array<uint8_t, 1>>("420102"_unhex)));
+  EXPECT_OUTCOME_EQ(decode<std::vector<uint8_t>>("420102"_unhex), "0102"_unhex);
+}
+
 /**
  * @given Integers and bool
  * @when Encode

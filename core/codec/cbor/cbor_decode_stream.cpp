@@ -17,15 +17,14 @@ namespace fc::codec::cbor {
     value_.remaining = UINT32_MAX;
   }
 
-  CborDecodeStream &CborDecodeStream::operator>>(std::vector<uint8_t> &bytes) {
-    if (!cbor_value_is_byte_string(&value_)) {
+  CborDecodeStream &CborDecodeStream::operator>>(gsl::span<uint8_t> bytes) {
+    if (!isBytes()) {
       outcome::raise(CborDecodeError::WRONG_TYPE);
     }
-    size_t size;
-    if (CborNoError != cbor_value_get_string_length(&value_, &size)) {
-      outcome::raise(CborDecodeError::INVALID_CBOR);
+    auto size = bytesLength();
+    if (bytes.size() < 0 || size != static_cast<size_t>(bytes.size())) {
+      outcome::raise(CborDecodeError::WRONG_LENGTH);
     }
-    bytes.resize(size);
     auto value = value_;
     value.remaining = 1;
     if (CborNoError
@@ -34,6 +33,14 @@ namespace fc::codec::cbor {
     }
     next();
     return *this;
+  }
+
+  CborDecodeStream &CborDecodeStream::operator>>(std::vector<uint8_t> &bytes) {
+    if (!isBytes()) {
+      outcome::raise(CborDecodeError::WRONG_TYPE);
+    }
+    bytes.resize(bytesLength());
+    return *this >> gsl::make_span(bytes);
   }
 
   CborDecodeStream &CborDecodeStream::operator>>(std::string &str) {
@@ -86,7 +93,7 @@ namespace fc::codec::cbor {
   }
 
   CborDecodeStream CborDecodeStream::list() {
-    if (!cbor_value_is_array(&value_)) {
+    if (!isList()) {
       outcome::raise(CborDecodeError::WRONG_TYPE);
     }
     auto stream = container();
@@ -140,9 +147,21 @@ namespace fc::codec::cbor {
     return cbor_value_is_null(&value_);
   }
 
+  bool CborDecodeStream::isBytes() const {
+    return cbor_value_is_byte_string(&value_);
+  }
+
   size_t CborDecodeStream::listLength() const {
     size_t length;
     if (CborNoError != cbor_value_get_array_length(&value_, &length)) {
+      outcome::raise(CborDecodeError::INVALID_CBOR);
+    }
+    return length;
+  }
+
+  size_t CborDecodeStream::bytesLength() const {
+    size_t length;
+    if (CborNoError != cbor_value_get_string_length(&value_, &length)) {
       outcome::raise(CborDecodeError::INVALID_CBOR);
     }
     return length;
@@ -156,7 +175,7 @@ namespace fc::codec::cbor {
   }
 
   std::map<std::string, CborDecodeStream> CborDecodeStream::map() {
-    if (!cbor_value_is_map(&value_)) {
+    if (!isMap()) {
       outcome::raise(CborDecodeError::WRONG_TYPE);
     }
     auto stream = container();

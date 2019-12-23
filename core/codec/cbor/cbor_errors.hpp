@@ -16,7 +16,8 @@ namespace fc::codec::cbor {
     WRONG_TYPE,
     INT_OVERFLOW,
     INVALID_CBOR_CID,
-    INVALID_CID
+    INVALID_CID,
+    WRONG_LENGTH,
   };
 }  // namespace fc::codec::cbor
 

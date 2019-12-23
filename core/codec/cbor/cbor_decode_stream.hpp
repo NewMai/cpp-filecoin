@@ -59,6 +59,8 @@ namespace fc::codec::cbor {
       return *this;
     }
 
+    /** Decodes bytes into fixed buffer */
+    CborDecodeStream &operator>>(gsl::span<uint8_t> bytes);
     /** Decodes bytes */
     CborDecodeStream &operator>>(std::vector<uint8_t> &bytes);
     /** Decodes string */
@@ -75,9 +77,14 @@ namespace fc::codec::cbor {
     bool isList() const;
     /** Checks if current element is map container */
     bool isMap() const;
+    /** Checks if current element is null */
     bool isNull() const;
+    /** Checks if current element is bytes */
+    bool isBytes() const;
     /** Returns count of items in current element list container */
     size_t listLength() const;
+    /** Returns length of current bytes element */
+    size_t bytesLength() const;
     /** Returns CBOR bytes of current element */
     std::vector<uint8_t> raw() const;
     /** Creates map container decode substream map */

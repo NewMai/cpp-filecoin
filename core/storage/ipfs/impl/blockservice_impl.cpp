@@ -8,8 +8,7 @@
 using fc::storage::ipfs::Block;
 
 namespace fc::storage::ipfs {
-  outcome::result<void> BlockServiceImpl::addBlock(
-      const Block &block) {
+  outcome::result<void> BlockServiceImpl::addBlock(const Block &block) {
     return local_storage_.set(block.getCID(), block.getContent());
   }
 
@@ -17,7 +16,8 @@ namespace fc::storage::ipfs {
     return local_storage_.contains(cid);
   }
 
-  outcome::result<Block::Content> BlockServiceImpl::getBlockContent(const CID &cid) const {
+  outcome::result<Block::Content> BlockServiceImpl::getBlockContent(
+      const CID &cid) const {
     outcome::result<Block::Content> data = local_storage_.get(cid);
     return data ? data : BlockServiceError::NOT_FOUND;
   }

@@ -20,13 +20,6 @@ namespace fc::storage::ipfs {
   class BlockService {
    public:
     /**
-     * @brief Construct block service
-     * @todo Add exchange for remote storage
-     * @param data_store
-     */
-    BlockService(IpfsDatastore &data_store) : local_storage_{data_store} {}
-
-    /**
      * @brief Add new block to local storage
      * @param block - entity to add
      * @return operation result
@@ -45,7 +38,8 @@ namespace fc::storage::ipfs {
      * @param cid - block id
      * @return operation result
      */
-    virtual outcome::result<Block::Content> getBlockContent(const CID &cid) const = 0;
+    virtual outcome::result<Block::Content> getBlockContent(
+        const CID &cid) const = 0;
 
     /**
      * @brief Remove block from local storage
@@ -58,9 +52,6 @@ namespace fc::storage::ipfs {
      * @brief Default constructor
      */
     virtual ~BlockService() = default;
-
-  protected:
-    IpfsDatastore &local_storage_; /**< Local data storage */
   };
 
   /**

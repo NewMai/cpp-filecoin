@@ -17,6 +17,11 @@ namespace fc::storage::ipfs {
     using Content = common::Buffer; /**< Alias for content type */
 
     /**
+     * @brief Default destructor
+     */
+    virtual ~Block() = default;
+
+    /**
      * @brief Get content identifier
      * @return Block CID
      */
@@ -27,11 +32,6 @@ namespace fc::storage::ipfs {
      * @return Block's raw data for store in the BlockService
      */
     virtual const Content &getContent() const = 0;
-
-    /**
-     * @brief Default destructor
-     */
-    virtual ~Block() = default;
   };
 }  // namespace fc::storage::ipfs
 

@@ -14,11 +14,16 @@
 
 namespace fc::storage::ipfs {
   /**
-   * @class Provides a seamless interface to both local and remote storage
+   * @interface Provides a seamless interface to both local and remote storage
    * backends
    */
   class BlockService {
    public:
+    /**
+     * @brief Default destructor
+     */
+    virtual ~BlockService() = default;
+
     /**
      * @brief Add new block to local storage
      * @param block - entity to add
@@ -47,17 +52,17 @@ namespace fc::storage::ipfs {
      * @return operation result
      */
     virtual outcome::result<void> removeBlock(const CID &cid) = 0;
-
-    /**
-     * @brief Default constructor
-     */
-    virtual ~BlockService() = default;
   };
 
   /**
    * @enum Block service errors
    */
-  enum class BlockServiceError : int { NOT_FOUND = 1 };
+  enum class BlockServiceError : int {
+    CID_NOT_FOUND = 1,
+    ADD_BLOCK_FAILED,
+    GET_BLOCK_FAILED,
+    REMOVE_BLOCK_FAILED
+  };
 }  // namespace fc::storage::ipfs
 
 OUTCOME_HPP_DECLARE_ERROR(fc::storage::ipfs, BlockServiceError);

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <memory>
+
 #include <gtest/gtest.h>
 
 #include "storage/ipfs/impl/blockservice_impl.hpp"
@@ -61,11 +63,9 @@ class BlockServiceTest : public ::testing::Test {
   /**
    * @brief Initialize BlockService
    */
-  BlockServiceTest() : data_store_{}, block_service_(data_store_) {}
+  BlockServiceTest() : block_service_(std::make_shared<InMemoryDatastore>()) {}
 
  protected:
-  InMemoryDatastore
-      data_store_; /**< Any implementation of Datastore interface */
 
   BlockServiceImpl block_service_; /**< Testing target */
 
@@ -116,7 +116,7 @@ TEST_F(BlockServiceTest, RemoveBlockSuccess) {
  * @then Attempt must be failed
  */
 TEST_F(BlockServiceTest, GetInvalidCidFailure) {
-  BlockServiceError expected_error = BlockServiceError::NOT_FOUND;
+  BlockServiceError expected_error = BlockServiceError::CID_NOT_FOUND;
   EXPECT_OUTCOME_FALSE(result, block_service_.getBlockContent(sample_block_.getCID()))
   ASSERT_EQ(result.value(), static_cast<int>(expected_error));
 }

@@ -6,6 +6,8 @@
 #ifndef FILECOIN_STORAGE_IPFS_BLOCKSERVICE_IMPL_HPP
 #define FILECOIN_STORAGE_IPFS_BLOCKSERVICE_IMPL_HPP
 
+#include <memory>
+
 #include "storage/ipfs/blockservice.hpp"
 
 namespace fc::storage::ipfs {
@@ -16,7 +18,7 @@ namespace fc::storage::ipfs {
      * @todo Add exchange for remote storage
      * @param data_store
      */
-    explicit BlockServiceImpl(IpfsDatastore &data_store)
+    explicit BlockServiceImpl(std::shared_ptr<IpfsDatastore> data_store)
         : local_storage_{data_store} {}
 
     outcome::result<void> addBlock(const Block &block) override;
@@ -29,7 +31,7 @@ namespace fc::storage::ipfs {
     outcome::result<void> removeBlock(const CID &cid) override;
 
    private:
-    IpfsDatastore &local_storage_; /**< Local data storage */
+    std::shared_ptr<IpfsDatastore> local_storage_; /**< Local data storage */
   };
 }  // namespace fc::storage::ipfs
 

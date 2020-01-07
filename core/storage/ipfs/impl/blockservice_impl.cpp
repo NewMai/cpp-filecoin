@@ -9,22 +9,36 @@ using fc::storage::ipfs::Block;
 
 namespace fc::storage::ipfs {
   outcome::result<void> BlockServiceImpl::addBlock(const Block &block) {
-    return local_storage_.set(block.getCID(), block.getContent());
+    auto result = local_storage_->set(block.getCID(), block.getContent());
+    if (result.has_error()) {
+      return BlockServiceError::ADD_BLOCK_FAILED;
+    }
+    return outcome::success();
   }
 
   outcome::result<bool> BlockServiceImpl::has(const CID &cid) const {
-    return local_storage_.contains(cid);
+    return local_storage_->contains(cid);
   }
 
   outcome::result<Block::Content> BlockServiceImpl::getBlockContent(
       const CID &cid) const {
-    outcome::result<Block::Content> data = local_storage_.get(cid);
-    return data ? data : BlockServiceError::NOT_FOUND;
+    outcome::result<Block::Content> data = local_storage_->get(cid);
+    if (data.has_error()) {
+      if (data.error() == IpfsDatastoreError::NOT_FOUND) {
+        return BlockServiceError::CID_NOT_FOUND;
+      }
+      return BlockServiceError::GET_BLOCK_FAILED;
+    }
+    return data;
   }
 
   outcome::result<void> BlockServiceImpl::removeBlock(const CID &cid) {
-    if (local_storage_.remove(cid).has_error()) {
-      return BlockServiceError::NOT_FOUND;
+    auto result = local_storage_->remove(cid);
+    if (result.has_error()) {
+      if (result.error() == IpfsDatastoreError::NOT_FOUND) {
+        return BlockServiceError::CID_NOT_FOUND;
+      }
+      return BlockServiceError::REMOVE_BLOCK_FAILED;
     }
     return outcome::success();
   }
@@ -33,8 +47,14 @@ namespace fc::storage::ipfs {
 OUTCOME_CPP_DEFINE_CATEGORY(fc::storage::ipfs, BlockServiceError, e) {
   using fc::storage::ipfs::BlockServiceError;
   switch (e) {
-    case BlockServiceError::NOT_FOUND:
-      return "BlockServiceError: block not found";
+    case BlockServiceError::CID_NOT_FOUND:
+      return "BlockServiceError: block with given CID not found";
+    case BlockServiceError::ADD_BLOCK_FAILED:
+      return "BlockServiceError: failed to add block to datastore";
+    case BlockServiceError::GET_BLOCK_FAILED:
+      return "BlockServiceError: failed to get block from datastore";
+    case BlockServiceError::REMOVE_BLOCK_FAILED:
+      return "BlockServiceError: failed to remove block from datastore";
     default:
       return "BlockServiceError: unknown error";
   }

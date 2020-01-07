@@ -15,13 +15,7 @@
 
 namespace fc::vm::actor {
 
-
-  /**
-   * Amount of Filecoin tokens
-   */
-  class TokenAmount : public BigInt {};
   using libp2p::multi::ContentIdentifier;
-  using primitives::address::Address;
   using primitives::BigInt;
   using primitives::address::Address;
   using Serialization = fc::common::Buffer;

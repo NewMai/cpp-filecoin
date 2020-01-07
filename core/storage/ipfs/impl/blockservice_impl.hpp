@@ -19,7 +19,7 @@ namespace fc::storage::ipfs {
      * @param data_store
      */
     explicit BlockServiceImpl(std::shared_ptr<IpfsDatastore> data_store)
-        : local_storage_{data_store} {}
+        : local_storage_{std::move(data_store)} {}
 
     outcome::result<void> addBlock(const Block &block) override;
 
